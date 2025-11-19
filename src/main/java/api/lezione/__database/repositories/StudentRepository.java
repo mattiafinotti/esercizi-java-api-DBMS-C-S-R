@@ -42,6 +42,7 @@ public class StudentRepository implements IRepositoryWrite<Student>, IRepository
 
                 students.add(student);
             }
+            conn.close();
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
