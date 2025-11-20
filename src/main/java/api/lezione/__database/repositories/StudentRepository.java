@@ -17,16 +17,7 @@ public class StudentRepository implements IRepositoryWrite<Student>, IRepository
     public List<Student> getAll() {
         List<Student> students = new ArrayList<>();
         try{
-            MysqlDataSource ds = new MysqlDataSource();
-            ds.setServerName("localhost");
-            ds.setPort(3306);
-            ds.setUser("Mattia");
-            ds.setPassword("root1999!");
-            ds.setDatabaseName("lezione_api_1");
-            ds.setUseSSL(false);
-            ds.setAllowPublicKeyRetrieval(true);
-
-            Connection conn = ds.getConnection();
+            Connection conn = ConnectionSingleton.getInstance().getConnection();
 
             String query = "select studentID, firstName, lastName, studentNumber, dateOfBirth FROM STUDENT";
             PreparedStatement ps = conn.prepareStatement(query);
@@ -51,6 +42,29 @@ public class StudentRepository implements IRepositoryWrite<Student>, IRepository
 
     @Override
     public boolean Insert(Student obj) {
+        boolean result = false;
+        try{
+            Connection conn = ConnectionSingleton.getInstance().getConnection();
+
+            String query = "INSERT INTO Student (FirstName, LastName, StudentNumber, dateOfBirth) " +
+                    "VALUES (?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, obj.getFirName());
+            ps.setString(2, obj.getLasName());
+            ps.setString(3, obj.getStudNum());
+            ps.setDate(4, obj.getDateBr());
+
+            int affectedRows = ps.executeUpdate();
+            if(affectedRows > 0){
+                return true;
+            }
+
+
+
+            conn.close();
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
         return false;
     }
 
@@ -66,7 +80,33 @@ public class StudentRepository implements IRepositoryWrite<Student>, IRepository
     //Rear Methods
     @Override
     public Student getById(int id) {
-        return null;
+        Student student = null;
+        try{
+            Connection conn = ConnectionSingleton.getInstance().getConnection(); //Crea la connessione invocando il metodo e non INSTANZIANDO, perchè il costruttore singlenton è private
+
+            String query = "select studentID, firstName, lastName, studentNumber, dateOfBirth " +
+                    "FROM STUDENT WHERE studentID = ?"; // il simbolo "?" indica il parametro 1
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1, id); // 1 Indica il parametro 1 specificato dal simbolo ? di SQL
+            ResultSet rs = ps.executeQuery();
+
+
+            while(rs.next()){
+                student = new Student();
+                student.setId(rs.getInt("studentID"));
+                student.setFirName(rs.getString("firstName"));
+                student.setLasName(rs.getString("lastName"));
+                student.setStudNum(rs.getString("studentNumber"));
+                student.setDateBr(rs.getDate("dateOfBirth"));
+
+
+            }
+            conn.close();
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        return student;
     }
 
 

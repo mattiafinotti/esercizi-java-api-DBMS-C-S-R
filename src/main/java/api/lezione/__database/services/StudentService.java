@@ -14,6 +14,15 @@ public class StudentService {
     private StudentRepository repo;
     public List<Student> studListService(){
         return repo.getAll();
+
+    }
+
+    public Student getStudentDetailService(int varId){
+        return repo.getById(varId);
+    }
+
+    public boolean studInsertService(Student student){
+        return repo.Insert(student);
     }
 }
 
