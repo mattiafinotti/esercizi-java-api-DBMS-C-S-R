@@ -40,6 +40,7 @@ public class StudentRepository implements IRepositoryWrite<Student>, IRepository
         return students;
     }
 
+
     @Override
     public boolean Insert(Student obj) {
         boolean result = false;
@@ -68,16 +69,70 @@ public class StudentRepository implements IRepositoryWrite<Student>, IRepository
         return false;
     }
 
+
     @Override
     public boolean Update(Student obj) {
-        return false;
+        boolean result = false;
+        try{
+            Connection conn = ConnectionSingleton.getInstance().getConnection();
+
+            int id = obj.getId();
+            Student stu = this.getById(id);
+            if(stu != null){
+                //Il sistema eseguito di seguito permette di verificare la presenza dei dati, altrimenti prende quelli già esistenti nel DB
+                stu.setFirName(obj.getFirName() == null ? stu.getFirName() : obj.getFirName());
+                //? --> Allora, : --> Altrimenti, OBJ è il contenuto nuovo passato nella firma come parametro, STU è quello già presente nel DB
+                stu.setLasName(obj.getLasName() == null ? stu.getLasName() : obj.getLasName());
+                stu.setStudNum(obj.getStudNum() == null ? stu.getStudNum() : obj.getStudNum());
+                stu.setDateBr(obj.getDateBr() == null ? stu.getDateBr() : obj.getDateBr());
+            }
+
+            String query = "UPDATE Student SET"
+                    + "FirstName = ?"
+                    + "LastName = ?"
+                    + "StudentNumber = ?"
+                    + "dateOfBirth = ?"
+                    + "WHERE studentID = ?";
+
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, stu.getFirName());
+            ps.setString(2,stu.getLasName());
+            ps.setString(3, stu.getStudNum());
+            ps.setDate(4, stu.getDateBr());
+            ps.setInt(5, id);
+            int affectedRows = ps.executeUpdate();
+            if(affectedRows > 0){
+                result = true;
+            }
+            conn.close();
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        return result;
     }
+
 
     @Override
     public boolean Delete(int id) {
-        return false;
+        boolean result = false;
+        try{
+            Connection conn = ConnectionSingleton.getInstance().getConnection();
+
+            String query = "DELETE FROM Student WHERE studentID = ?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1, id);
+            int affectedRows = ps.executeUpdate();
+            if(affectedRows > 0){
+                result = true;
+            }
+            conn.close();
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        return result;
     }
-    //Rear Methods
+
+
     @Override
     public Student getById(int id) {
         Student student = null;
@@ -90,7 +145,6 @@ public class StudentRepository implements IRepositoryWrite<Student>, IRepository
             ps.setInt(1, id); // 1 Indica il parametro 1 specificato dal simbolo ? di SQL
             ResultSet rs = ps.executeQuery();
 
-
             while(rs.next()){
                 student = new Student();
                 student.setId(rs.getInt("studentID"));
@@ -98,14 +152,11 @@ public class StudentRepository implements IRepositoryWrite<Student>, IRepository
                 student.setLasName(rs.getString("lastName"));
                 student.setStudNum(rs.getString("studentNumber"));
                 student.setDateBr(rs.getDate("dateOfBirth"));
-
-
             }
             conn.close();
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
-
         return student;
     }
 

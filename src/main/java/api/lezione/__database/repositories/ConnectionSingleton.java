@@ -14,7 +14,9 @@ public class ConnectionSingleton {
             return instance;
     }
 
+
     private ConnectionSingleton() {}
+
 
     public Connection getConnection() throws SQLException {
 
@@ -28,7 +30,5 @@ public class ConnectionSingleton {
             ds.setAllowPublicKeyRetrieval(true);
 
             return ds.getConnection();
-
-
     }
 }

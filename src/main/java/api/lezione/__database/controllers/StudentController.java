@@ -19,6 +19,8 @@ public class StudentController {
     public List<Student> studList(){
         return serv.studListService();
     }
+
+
     @GetMapping("{varId}")
     public ResponseEntity getStudentById(@PathVariable int varId){
         Student resu = serv.getStudentDetailService(varId);
@@ -29,6 +31,7 @@ public class StudentController {
             return ResponseEntity.ok(resu);
     }
 
+
     @PostMapping("insert")
     public ResponseEntity addStudent(@RequestBody Student student){
         boolean insertResult = serv.studInsertService(student);
@@ -37,8 +40,36 @@ public class StudentController {
         }
             else
                 return ResponseEntity.unprocessableEntity().build();
+    }
+
+
+    @DeleteMapping("{id}")
+    public ResponseEntity deleteStudent(@PathVariable int id)
+    {
+        boolean deleteResult = serv.studDeliteService(id);
+        if(deleteResult) {
+            return ResponseEntity.ok().build();
         }
-    } //ResponseEntity permette di gestire il corpo della risposta e il codice di status
+        else
+                return ResponseEntity.badRequest().build();
+    }
+
+
+    @PutMapping("{id}")
+    public ResponseEntity updateStudent(@RequestBody Student student, @PathVariable int id)
+    {
+        if(id != 0) {
+            student.setId(id);
+            if(serv.studUpdateService(student)) {
+                return ResponseEntity.ok().build();
+            }
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+
+
+} //ResponseEntity permette di gestire il corpo della risposta e il codice di status
 
 
 

@@ -12,9 +12,9 @@ import java.util.List;
 public class StudentService {
     @Autowired
     private StudentRepository repo;
+
     public List<Student> studListService(){
         return repo.getAll();
-
     }
 
     public Student getStudentDetailService(int varId){
@@ -23,6 +23,14 @@ public class StudentService {
 
     public boolean studInsertService(Student student){
         return repo.Insert(student);
+    }
+
+    public boolean studUpdateService(Student student){
+        return repo.Update(student);
+    }
+
+    public boolean studDeliteService(int varId){
+        return repo.Delete(varId);
     }
 }
 
